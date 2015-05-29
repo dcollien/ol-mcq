@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Multiple Choice Answer</title>
+	</head>
+	<body>
+		<div id="answers"></div>
+
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript">
+			var saveAnswer = function(index) {
+				alert('Save: ' + index);
+			};
+
+			var insertAnswer = function(type, answer, choice, index) {
+				var $answers = $('#answers');
+
+				var $answer;
+				var $answerText = $('<span>').text(answer);
+
+				if (type === 'radio') {
+					$answer = $('<input>', {
+						type: 'radio',
+						name: 'answer',
+						value: index
+					});
+
+					if (index === choice) {
+						$answer.prop('checked', true);
+					}
+
+					$answers.append(
+						$('<label>')
+							.append($answer)
+							.append($answerText)
+					);
+
+					$answer.on('change click', function(evt) {
+						saveAnswer($(this).val());
+					});
+				} else if (type === 'checkbox') {
+					$answer = $('<input>', {
+						type: 'checkbox',
+						name: 'answer-' + index,
+						value: index
+					});
+
+					if (choice && $.inArray(index, choice) !== -1) {
+						$answer.prop('checked', true);
+					}
+
+					$answers.append(
+						$('<label>')
+							.append($answer)
+							.append($answerText)
+					);
+
+					$answer.on('change click', function(evt) {
+						var selectedAnswers = [];
+
+						$('#answers input:checked').foreach(function(i, checkbox) {
+							selectedAnswers.push($(checkbox).val());
+						});
+						saveAnswer(selectedAnswers);
+					});
+				}
+			};
+
+			var init = function() {
+				var answers     = OL.setup.data.answers;
+				var answerType  = OL.setup.data.type;
+				var userChoices = OL.user.data.choices;
+
+				var i, len;
+
+				if (!answers) {
+					answers = ["Answer A", "Answer B", "Answer C"];
+				}
+
+				if (!answerType) {
+					answerType = 'radio';
+				}
+
+				len = answers.length;
+				if (len !== userChoices.length) {
+					userChoices = [];
+				}
+
+				for (i = 0; i < len; i++) {
+					insertAnswer(answers[i], choices[i], i);
+				}
+			};
+
+			OL($(init));
+		</script>
+	</body>
+</html>
